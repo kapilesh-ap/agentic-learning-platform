@@ -1,0 +1,497 @@
+{
+    "preprocessing_prompt": {
+      "description": "Clean transcript by removing filler words, normalizing speaker names, and preparing for further analysis.",
+      "prompt_template": "You are a specialized transcript cleaner. Follow these steps:\n\n1) First, identify all speakers and create a consistent naming convention (e.g., Speaker 1, Speaker 2, or use job titles if clear).\n2) Next, remove all filler words including but not limited to: um, uh, like, you know, sort of, kind of, I mean.\n3) Then fix obvious grammatical errors without changing meaning.\n4) Finally, standardize formatting with clear paragraph breaks for readability.\n\nTranscript to clean:\n\n{transcript}\n\nThinking process:\n[Think step by step about speaker identification, filler words to remove, grammar issues]\n\nCleaned Transcript:",
+      "output_format": {
+        "type": "text",
+        "rules": [
+          "Maintain speaker turns with clear identification",
+          "Preserve paragraph structure",
+          "Remove timestamps unless explicitly needed",
+          "Use consistent capitalization and punctuation"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "2.0",
+      "tags": ["preprocessing", "transcript", "normalization", "cleaning"]
+    },
+    "summary_prompt": {
+      "description": "Summarize cleaned transcript into high-level, clear meeting notes in bullet format.",
+      "prompt_template": "You are an expert meeting summarizer. Your task is to distill this transcript into the most important points.\n\n1) First, identify the overall purpose and scope of the discussion.\n2) Next, identify key decisions, insights, and conclusions.\n3) Then determine major discussion topics by frequency and importance.\n4) Finally, highlight any unresolved issues or points of disagreement.\n\nTranscript:\n\n{transcript}\n\nThinking process:\n[Analyze discussion themes, identify decision points, assess importance of topics, note conflicting viewpoints]\n\nSummary (maximum 5 bullet points):",
+      "output_format": {
+        "type": "bullet_points",
+        "rules": [
+          "Each bullet should be 1-2 sentences maximum",
+          "Use active voice",
+          "Begin each point with a strong action verb or key topic",
+          "Include only essential information"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "2.0",
+      "tags": ["summary", "key_points", "meeting_notes", "synthesis"]
+    },
+    "task_extraction_prompt": {
+      "description": "Detect and extract actionable tasks and responsibilities from the meeting content.",
+      "prompt_template": "You are a task identification specialist. Your job is to extract every explicit and implicit action item from this transcript.\n\n1) First, identify explicit assignments (\"John will do X by Friday\").\n2) Next, look for implicit tasks (\"We should review the numbers\" = someone needs to review numbers).\n3) Then determine ownership for each task (who was assigned or implied as responsible).\n4) Finally, extract any mentioned deadlines or prioritization information.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Scan for action verbs, identify who is speaking when tasks are assigned, note deadline language, assess importance signals]\n\nAction Items (format each as: TASK - OWNER - DEADLINE):",
+      "output_format": {
+        "type": "structured_list",
+        "rules": [
+          "Use imperative verbs to start each task",
+          "Include owner name even if implied from context",
+          "Specify 'No deadline specified' if timing is unclear",
+          "Sort by deadline if available"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "2.0",
+      "tags": ["task", "follow-up", "responsibility", "action_items"]
+    },
+    "json_structuring_prompt": {
+      "description": "Convert plain task descriptions into structured JSON for frontend task board.",
+      "prompt_template": "You are a data structure specialist. Convert these task descriptions into a frontend-compatible JSON format.\n\n1) First, parse each task description to identify the core action required.\n2) Next, extract the name of the responsible person for each task.\n3) Then determine the deadline, converting relative dates to specific dates.\n4) Finally, add a unique ID and default status for each task.\n\nTasks:\n{transcript}\n\nThinking process:\n[Parse task text, extract owners from context, standardize deadline formats, generate IDs]\n\nJSON Output:",
+      "output_format": {
+        "type": "json",
+        "schema": {
+          "tasks": [
+            {
+              "id": "string (unique identifier)",
+              "task": "string (the action to be performed)",
+              "owner": "string (responsible person)",
+              "deadline": "string (YYYY-MM-DD format or 'Unspecified')",
+              "status": "string (default: 'Not Started')",
+              "priority": "string (High/Medium/Low, default: 'Medium')",
+              "notes": "string (optional context)"
+            }
+          ]
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "2.0",
+      "tags": ["formatting", "task_json", "frontend", "structuring"]
+    },
+    "query_prompt": {
+      "description": "Answer a user query using context retrieved from transcript database.",
+      "prompt_template": "You are a meeting information retrieval specialist. Answer the user's question based only on the provided transcript context.\n\n1) First, assess if the question can be answered with the information provided.\n2) Next, find the most relevant sections of the transcript for this question.\n3) Then extract the specific facts or statements that address the query.\n4) Finally, formulate a concise answer using only information from the transcript.\n\nContext:\n{transcript}\n\nUser Question:\n{question}\n\nThinking process:\n[Search for relevant sections, identify specific information addressing the question, determine confidence level in answer]\n\nAnswer:",
+      "output_format": {
+        "type": "text",
+        "rules": [
+          "Answer should be concise (1-3 sentences when possible)",
+          "Include source attribution (e.g., 'According to Speaker 1...')",
+          "Acknowledge uncertainty if information is incomplete",
+          "Do not include information not found in the transcript"
+        ]
+      },
+      "input_variables": ["transcript", "question"],
+      "version": "2.0",
+      "tags": ["query", "retrieval", "qa", "information_extraction"]
+    },
+    "sentiment_prompt": {
+      "description": "Analyze emotional tone and group sentiment from transcript.",
+      "prompt_template": "You are an expert in sentiment analysis and emotional intelligence. Analyze this transcript for emotional signals.\n\n1) First, identify each participant's baseline communication style.\n2) Next, note shifts in tone, enthusiasm, or engagement throughout the meeting.\n3) Then identify potential areas of alignment or conflict between participants.\n4) Finally, assess the overall emotional trajectory of the conversation.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Map emotional language, note changes in participation level, identify alignment signals between speakers, analyze voice tone indicators]\n\nSentiment Analysis:",
+      "output_format": {
+        "type": "structured_analysis",
+        "sections": [
+          "Overall Meeting Tone",
+          "Individual Participant Analysis",
+          "Key Emotional Moments",
+          "Group Dynamics",
+          "Recommendations"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "2.0",
+      "tags": ["emotion", "sentiment", "analytics", "psychological_analysis"]
+    },
+    "mindmap_prompt": {
+      "description": "Extract topics and relationships to generate a mind map graph structure.",
+      "prompt_template": "You are a knowledge structure specialist. Create a hierarchical mind map from this transcript.\n\n1) First, identify the central theme or purpose of the discussion.\n2) Next, extract 3-5 major topics discussed (Level 1 nodes).\n3) Then for each major topic, identify 2-4 subtopics or key points (Level 2 nodes).\n4) Finally, note important connections between topics across branches.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Identify core themes, categorize discussion points, establish hierarchical relationships, find cross-connections]\n\nMind Map Structure:",
+      "output_format": {
+        "type": "json",
+        "schema": {
+          "central_theme": "string",
+          "main_topics": [
+            {
+              "name": "string",
+              "subtopics": [
+                {
+                  "name": "string",
+                  "details": "string",
+                  "connections": ["topic_id references"]
+                }
+              ]
+            }
+          ],
+          "cross_connections": [
+            {
+              "from": "topic_id",
+              "to": "topic_id",
+              "relationship": "string"
+            }
+          ]
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "2.0",
+      "tags": ["visualization", "mindmap", "topic_modeling", "knowledge_graph"]
+    },
+    "fact_checking_prompt": {
+      "description": "Verify claims or numbers mentioned in the transcript.",
+      "prompt_template": "You are a fact verification specialist. Identify and assess factual claims in this transcript.\n\n1) First, extract all numerical claims, statistics, and factual assertions.\n2) Next, classify each claim by type (statistical, historical, predictive, etc.).\n3) Then rate each claim's verifiability (easily verified, needs expertise, speculative).\n4) Finally, flag potentially problematic or questionable claims for verification.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Identify specific claims, assess claim type and verifiability, flag questionable statements]\n\nFact Check Report:",
+      "output_format": {
+        "type": "structured_report",
+        "sections": [
+          "Key Claims Identified",
+          "Claims Requiring Verification",
+          "Potential Inaccuracies",
+          "Information Gaps"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "2.0",
+      "tags": ["verification", "integrity", "knowledge_graph", "accuracy"]
+    },
+    "translation_prompt": {
+      "description": "Translate the transcript into English or other specified language.",
+      "prompt_template": "You are a specialized transcript translator. Translate this transcript while preserving meaning and context.\n\n1) First, identify any specialized terminology or jargon that needs careful translation.\n2) Next, maintain speaker identification and conversation flow across languages.\n3) Then preserve emotional tone and cultural context where possible.\n4) Finally, ensure consistent translation of recurring terms throughout.\n\nSource Transcript:\n{transcript}\n\nTarget Language: {language}\n\nThinking process:\n[Identify specialized terms, note cultural references, maintain consistency]\n\nTranslated Transcript:",
+      "output_format": {
+        "type": "text",
+        "rules": [
+          "Maintain original paragraph structure and speaker indicators",
+          "Preserve formatting elements like bullet points and emphasis",
+          "Indicate with [Note] any cultural references that require explanation",
+          "Use consistent terminology throughout"
+        ]
+      },
+      "input_variables": ["transcript", "language"],
+      "version": "2.0",
+      "tags": ["translation", "language", "accessibility", "localization"]
+    },
+    "topic_clustering_prompt": {
+      "description": "Group transcript content into topical clusters for advanced analysis.",
+      "prompt_template": "You are a topic modeling specialist. Identify and cluster the main discussion topics in this transcript.\n\n1) First, extract key terms and phrases that appear frequently or with emphasis.\n2) Next, group related terms into coherent topic clusters.\n3) Then identify which parts of the transcript relate to each topic cluster.\n4) Finally, name each cluster with a descriptive label.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Extract key terms, group by semantic similarity, map to transcript sections, create descriptive labels]\n\nTopic Clusters:",
+      "output_format": {
+        "type": "json",
+        "schema": {
+          "clusters": [
+            {
+              "topic_name": "string",
+              "key_terms": ["string array"],
+              "transcript_sections": ["string array with speaker and summarized points"],
+              "discussion_duration": "approximate percentage of transcript",
+              "related_clusters": ["string array of related topic names"]
+            }
+          ]
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["topic_modeling", "clustering", "semantic_analysis", "information_organization"]
+    },
+    "decision_logging_prompt": {
+      "description": "Extract and document all decisions made during the meeting.",
+      "prompt_template": "You are a decision documentation specialist. Identify all decisions made in this meeting.\n\n1) First, scan for explicit decision language (\"we've decided to...\", \"the final choice is...\").\n2) Next, look for implicit decisions (consensus reached without formal declaration).\n3) Then note the context and reasoning behind each decision when available.\n4) Finally, identify who was involved in or affected by each decision.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Search for decision indicators, assess consensus formation, extract context for decisions, identify stakeholders]\n\nDecision Log:",
+      "output_format": {
+        "type": "structured_list",
+        "schema": {
+          "decisions": [
+            {
+              "decision": "string (what was decided)",
+              "context": "string (why this decision was made)",
+              "decision_makers": ["string array of involved parties"],
+              "impacts": ["string array of affected teams/processes"],
+              "implementation_notes": "string (any mentioned next steps)",
+              "transcript_reference": "string (approximate location in transcript)"
+            }
+          ]
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["decision_making", "governance", "documentation", "accountability"]
+    },
+    "conflict_analysis_prompt": {
+      "description": "Detect and analyze points of disagreement or tension in the discussion.",
+      "prompt_template": "You are a conflict analysis specialist. Identify points of disagreement or tension in this transcript.\n\n1) First, locate sections where participants express opposing viewpoints.\n2) Next, analyze the nature of each disagreement (factual, procedural, value-based, etc.).\n3) Then assess how the conflict evolved throughout the discussion.\n4) Finally, note how or if resolution was reached.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Identify opposing statements, categorize disagreement types, track conflict evolution, evaluate resolution attempts]\n\nConflict Analysis:",
+      "output_format": {
+        "type": "structured_analysis",
+        "sections": [
+          "Key Points of Disagreement",
+          "Conflict Dynamics",
+          "Resolution Status",
+          "Impact on Decision Making",
+          "Recommendations for Future Discussions"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["conflict", "disagreement", "group_dynamics", "negotiation"]
+    },
+    "participation_analysis_prompt": {
+      "description": "Analyze speaking time and engagement patterns of meeting participants.",
+      "prompt_template": "You are a meeting participation analyst. Analyze the speaking patterns and engagement of participants.\n\n1) First, count approximate speaking turns for each participant.\n2) Next, assess relative speaking time and frequency of contribution.\n3) Then identify participation patterns (who speaks after whom, interruptions).\n4) Finally, note changes in participation throughout the meeting.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Count speaking instances by participant, measure relative contribution volume, analyze interaction patterns, track changes over time]\n\nParticipation Analysis:",
+      "output_format": {
+        "type": "json",
+        "schema": {
+          "participants": [
+            {
+              "name": "string",
+              "speaking_turns": "integer",
+              "estimated_speaking_percentage": "float",
+              "typical_contribution_length": "string (brief/moderate/extensive)",
+              "interruption_pattern": "string (description)",
+              "topic_focus": ["string array of topics this person engaged with most"]
+            }
+          ],
+          "overall_dynamics": {
+            "dominant_speakers": ["string array"],
+            "participation_balance": "string (assessment)",
+            "turn_taking_pattern": "string (description)",
+            "recommendations": ["string array"]
+          }
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["participation", "speaking_time", "meeting_dynamics", "engagement"]
+    },
+    "question_extraction_prompt": {
+      "description": "Identify all questions asked during the meeting and their resolution status.",
+      "prompt_template": "You are a question analysis specialist. Extract and categorize all questions from this transcript.\n\n1) First, identify every question asked during the meeting (explicit and implicit).\n2) Next, determine who asked each question and to whom it was directed.\n3) Then categorize each question (clarification, decision-seeking, information-gathering, etc.).\n4) Finally, determine if and how each question was addressed.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Search for question marks and questioning language, determine question ownership and target, classify question types, track if answers were provided]\n\nQuestion Analysis:",
+      "output_format": {
+        "type": "structured_list",
+        "schema": {
+          "questions": [
+            {
+              "question_text": "string",
+              "asker": "string",
+              "target": "string (person/group questions was directed to)",
+              "category": "string (question type)",
+              "resolution_status": "string (answered/partially answered/unanswered)",
+              "answer_summary": "string (if applicable)",
+              "follow_up_needed": "boolean"
+            }
+          ],
+          "question_patterns": {
+            "most_common_category": "string",
+            "unresolved_themes": ["string array"],
+            "recommendations": "string"
+          }
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["questions", "inquiry", "resolution", "information_needs"]
+    },
+    "timeline_extraction_prompt": {
+      "description": "Create a chronological timeline of events mentioned or planned in the meeting.",
+      "prompt_template": "You are a timeline construction specialist. Extract all time-related references from this transcript.\n\n1) First, identify all mentions of past events with their dates/times.\n2) Next, note all mentions of present or ongoing activities.\n3) Then extract all mentioned future events, deadlines, or milestones.\n4) Finally, arrange them in chronological order with context.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Identify temporal references, categorize by past/present/future, normalize date formats, arrange chronologically]\n\nEvent Timeline:",
+      "output_format": {
+        "type": "chronological_list",
+        "sections": [
+          "Past Events",
+          "Current Status/Activities",
+          "Upcoming Events and Deadlines"
+        ],
+        "entry_format": {
+          "date": "YYYY-MM-DD or relative time reference",
+          "event": "string description",
+          "context": "string (relevant details)",
+          "mentioned_by": "string (speaker name)"
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["timeline", "schedule", "chronology", "project_planning"]
+    },
+    "resource_extraction_prompt": {
+      "description": "Identify all resources (people, tools, budgets) mentioned as needed or allocated.",
+      "prompt_template": "You are a resource management specialist. Extract all mentioned resources from this transcript.\n\n1) First, identify all human resources mentioned (team members, departments, external parties).\n2) Next, extract mentions of tools, systems, or technologies discussed.\n3) Then note any financial or budgetary references.\n4) Finally, capture any physical resources or materials mentioned.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Scan for resource terminology, categorize by resource type, identify allocation or requirements, note resource constraints]\n\nResource Summary:",
+      "output_format": {
+        "type": "categorized_list",
+        "categories": [
+          "Human Resources",
+          "Technical Resources",
+          "Financial Resources",
+          "Physical Resources",
+          "Resource Constraints",
+          "Resource Allocation Decisions"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["resources", "allocation", "planning", "budgeting"]
+    },
+    "meeting_evaluation_prompt": {
+      "description": "Evaluate meeting effectiveness based on structure, participation, and outcomes.",
+      "prompt_template": "You are a meeting effectiveness evaluator. Analyze this transcript for meeting quality indicators.\n\n1) First, assess the meeting structure (clear agenda, time management, focus).\n2) Next, evaluate participation quality and inclusiveness.\n3) Then analyze decision-making efficiency and clarity.\n4) Finally, identify concrete outcomes and next steps clarity.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Evaluate against meeting best practices, assess time usage, measure participation balance, identify outcome clarity]\n\nMeeting Effectiveness Evaluation:",
+      "output_format": {
+        "type": "scorecard",
+        "metrics": [
+          {"name": "Structure & Organization", "score": "1-5", "notes": "string"},
+          {"name": "Participant Engagement", "score": "1-5", "notes": "string"},
+          {"name": "Time Utilization", "score": "1-5", "notes": "string"},
+          {"name": "Decision Quality", "score": "1-5", "notes": "string"},
+          {"name": "Outcome Clarity", "score": "1-5", "notes": "string"}
+        ],
+        "strengths": ["string array"],
+        "improvement_areas": ["string array"],
+        "recommendations": ["string array"]
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["meeting_quality", "effectiveness", "evaluation", "improvement"]
+    },
+    "stakeholder_analysis_prompt": {
+      "description": "Identify stakeholders mentioned and analyze their concerns and positions.",
+      "prompt_template": "You are a stakeholder analysis specialist. Identify all stakeholders mentioned and analyze their interests.\n\n1) First, identify all stakeholders explicitly mentioned in the transcript.\n2) Next, infer additional stakeholders who may be affected but weren't explicitly mentioned.\n3) Then analyze each stakeholder's apparent interests, concerns, or positions.\n4) Finally, map potential stakeholder relationships and influence dynamics.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Identify named individuals and groups, infer unstated stakeholders, extract position indicators, map relationship dynamics]\n\nStakeholder Analysis:",
+      "output_format": {
+        "type": "structured_analysis",
+        "sections": [
+          "Internal Stakeholders",
+          "External Stakeholders",
+          "Key Concerns by Stakeholder",
+          "Influence Dynamics",
+          "Potential Conflicts of Interest",
+          "Engagement Recommendations"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["stakeholders", "interests", "influence", "relationships"]
+    },
+    "technical_extraction_prompt": {
+      "description": "Extract technical details, specifications, and requirements from discussion.",
+      "prompt_template": "You are a technical specification analyst. Extract technical information from this transcript.\n\n1) First, identify all technical terms, tools, and technologies mentioned.\n2) Next, extract any specifications, metrics, or quantitative requirements.\n3) Then note any technical challenges or limitations discussed.\n4) Finally, capture any technical decisions or solution approaches.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Identify technical terminology, extract numerical specifications, note technical constraints, document solution approaches]\n\nTechnical Summary:",
+      "output_format": {
+        "type": "structured_report",
+        "sections": [
+          "Technologies & Tools Referenced",
+          "Technical Requirements",
+          "Specifications & Metrics",
+          "Technical Challenges",
+          "Solution Approaches",
+          "Technical Decisions"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["technical", "specifications", "requirements", "solutions"]
+    },
+    "compliance_analysis_prompt": {
+      "description": "Identify regulatory, policy, or compliance concerns raised in the meeting.",
+      "prompt_template": "You are a compliance analysis specialist. Extract all compliance and regulatory information from this transcript.\n\n1) First, identify mentions of regulations, policies, or compliance requirements.\n2) Next, note any legal or compliance concerns or risks discussed.\n3) Then extract compliance-related action items or requirements.\n4) Finally, highlight any compliance deadlines or critical dates mentioned.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Search for regulatory terminology, identify compliance concerns, extract action requirements, note time-sensitive compliance matters]\n\nCompliance Analysis:",
+      "output_format": {
+        "type": "structured_report",
+        "sections": [
+          "Regulations & Policies Referenced",
+          "Compliance Concerns",
+          "Required Compliance Actions",
+          "Compliance Deadlines",
+          "Risk Assessment",
+          "Recommended Documentation"
+        ]
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["compliance", "regulatory", "legal", "risk_management"]
+    },
+    "comparative_analysis_prompt": {
+      "description": "Compare this meeting transcript with previous meetings on the same topic.",
+      "prompt_template": "You are a meeting comparison specialist. Compare this transcript with previous related meetings.\n\n1) First, identify recurring topics across this meeting and previous transcripts.\n2) Next, note any evolution in discussion, decisions, or understanding of these topics.\n3) Then highlight new topics or concerns that weren't present in previous meetings.\n4) Finally, analyze changes in participant attitudes or positions over time.\n\nCurrent Transcript:\n{current_transcript}\n\nPrevious Transcripts:\n{previous_transcripts}\n\nThinking process:\n[Identify topic overlap, track decision evolution, note new elements, analyze changing perspectives]\n\nComparative Analysis:",
+      "output_format": {
+        "type": "structured_comparison",
+        "sections": [
+          "Recurring Topics & Evolution",
+          "New Topics & Concerns",
+          "Changed Positions or Understandings",
+          "Progress on Previous Action Items",
+          "Consistent Challenges",
+          "Recommendations Based on Trends"
+        ]
+      },
+      "input_variables": ["current_transcript", "previous_transcripts"],
+      "version": "1.0",
+      "tags": ["comparison", "trends", "evolution", "continuity"]
+    },
+    "risk_analysis_prompt": {
+      "description": "Identify and classify risks mentioned or implied in the meeting transcript.",
+      "prompt_template": "You are a risk assessment specialist. Identify and analyze risks mentioned in this transcript.\n\n1) First, extract all explicitly mentioned risks, concerns, or potential problems.\n2) Next, infer implicit risks based on discussion context.\n3) Then categorize each risk (operational, financial, technical, etc.).\n4) Finally, assess mentioned or implied severity and likelihood when possible.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Scan for risk terminology, identify implicit concerns, categorize by risk type, extract severity indicators]\n\nRisk Analysis:",
+      "output_format": {
+        "type": "risk_register",
+        "schema": {
+          "risks": [
+            {
+              "risk_description": "string",
+              "category": "string (type of risk)",
+              "source": "string (transcript reference)",
+              "estimated_impact": "string (Low/Medium/High/Unknown)",
+              "estimated_likelihood": "string (Low/Medium/High/Unknown)",
+              "mentioned_mitigations": "string (if any)",
+              "stakeholders_concerned": ["string array"]
+            }
+          ],
+          "overall_assessment": "string",
+          "key_risk_areas": ["string array"],
+          "recommended_focus": "string"
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["risk", "assessment", "mitigation", "planning"]
+    },
+    "customer_feedback_extraction_prompt": {
+      "description": "Extract and categorize all customer feedback mentioned in the transcript.",
+      "prompt_template": "You are a customer insights specialist. Extract all customer feedback mentioned in this transcript.\n\n1) First, identify all references to customer comments, concerns, or requests.\n2) Next, categorize each feedback item (feature request, complaint, praise, etc.).\n3) Then note the source or context of the feedback when mentioned.\n4) Finally, assess the apparent priority or significance assigned to each feedback item.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Identify customer reference language, categorize by feedback type, extract source information, assess emphasis signals]\n\nCustomer Feedback Summary:",
+      "output_format": {
+        "type": "categorized_list",
+        "schema": {
+          "feedback_items": [
+            {
+              "feedback": "string",
+              "category": "string (type of feedback)",
+              "source": "string (customer/segment reference)",
+              "context": "string (how it came up)",
+              "apparent_priority": "string (Low/Medium/High/Unknown)",
+              "transcript_reference": "string"
+            }
+          ],
+          "feedback_themes": ["string array"],
+          "highest_priority_items": ["string array"],
+          "recommended_actions": ["string array"]
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["customer_feedback", "voice_of_customer", "product", "service"]
+    },
+    "keyword_extraction_prompt": {
+      "description": "Extract and rank important keywords and phrases from the transcript.",
+      "prompt_template": "You are a keyword extraction specialist. Identify key terms and phrases from this transcript.\n\n1) First, extract all significant terminology, technical terms, and important phrases.\n2) Next, calculate approximate frequency or emphasis of each term.\n3) Then group related terms into concept clusters.\n4) Finally, rank terms by likely importance to the discussion.\n\nTranscript:\n{transcript}\n\nThinking process:\n[Extract notable terms, assess frequency and emphasis, identify related term groups, evaluate importance signals]\n\nKeyword Analysis:",
+      "output_format": {
+        "type": "json",
+        "schema": {
+          "top_keywords": [
+            {
+              "term": "string",
+              "approximate_frequency": "integer",
+              "importance_score": "integer (1-10)",
+              "context": "string (how term was used)",
+              "related_terms": ["string array"]
+            }
+          ],
+          "concept_clusters": [
+            {
+              "cluster_name": "string",
+              "terms": ["string array"],
+              "dominant_context": "string"
+            }
+          ]
+        }
+      },
+      "input_variables": ["transcript"],
+      "version": "1.0",
+      "tags": ["keywords", "terminology", "concepts", "lexical_analysis"]
+    }
+
+}
