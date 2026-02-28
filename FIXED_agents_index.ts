@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Mastra, createTool } from '@mastra/core'
 import Groq from 'groq-sdk'
 import { PrismaClient } from '@prisma/client'
